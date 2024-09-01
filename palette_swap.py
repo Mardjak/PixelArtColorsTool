@@ -51,7 +51,7 @@ parser.add_argument('input', type=str, help='Path to the directory containing al
 parser.add_argument('output', type=str, help='Path to the directory for the output pictures or to a single picture')
 parser.add_argument('--palette', type=str, help='Path to the palette image (1x, see https://lospec.com/palette-list)', default=None)
 parser.add_argument('--downscale_width_resolution', type=int, help='Target width resolution for the downscale. Height will be calculated to keep the aspect ratio.', default=256)
-parser.add_argument('--colors', nargs='+', type=int, help='Force quantization to this color count', default=None)
+parser.add_argument('--colors', nargs='+', type=int, help='Force quantization to this color count. If unspecified, colors will be limited to the palette size. If no palette have been specified, no quantization will be done.', default=None)
 parser.add_argument('--constrast', nargs='+', type=float, help='Between 0 and infinity, change picture constrast before processing', default=None)
 parser.add_argument('--saturation', nargs='+', type=float, help='Between 0 and infinity, change picture saturation before processing', default=None)
 parser.add_argument('--dither', type=int, help='Apply dithering to the quantized image. 0 for no dithering, 1 for Floyd-Steinberg dithering, 2 for both', default=0)
