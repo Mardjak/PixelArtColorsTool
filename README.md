@@ -4,6 +4,7 @@ Install python then from a command line interface run:
 
 python ./palette_swap.py INPUT OUTPUT
 
+```bash
 usage: palette_swap.py [-h] [--palette PALETTE] [--downscale_width_resolution DOWNSCALE_WIDTH_RESOLUTION] [--colors COLORS [COLORS ...]] [--constrast CONSTRAST [CONSTRAST ...]]
                        [--saturation SATURATION [SATURATION ...]] [--dither DITHER]
                        input output
@@ -26,3 +27,4 @@ options:
   --saturation SATURATION [SATURATION ...]
                         Between 0 and infinity, change picture saturation before processing
   --dither DITHER       Apply dithering to the quantized image. 0 for no dithering, 1 for Floyd-Steinberg dithering, 2 for both
+
