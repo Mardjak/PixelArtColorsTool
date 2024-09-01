@@ -27,4 +27,8 @@ options:
   --saturation SATURATION [SATURATION ...]
                         Between 0 and infinity, change picture saturation before processing
   --dither DITHER       Apply dithering to the quantized image. 0 for no dithering, 1 for Floyd-Steinberg dithering, 2 for both
+```
 
+Input and output supports directories. If an directory is set as input then all pictures found in the directory will be processed. Note that if the input is a directory then the output must imperatively also be a directory.
+
+Some arguments, namely colors, contrast, saturation and dither supports multiples values. So you can for example set --contrast 1.1 1.2 1.3. If any of the options are multiple, then all combinations of those settings will be generated in the output.
