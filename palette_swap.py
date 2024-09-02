@@ -3,8 +3,14 @@ from pathlib import Path
 import sys
 import argparse
 import itertools
+from typing import List
 
-def process_picture_internal(image: Image, output_path: Path, og_width: int, og_height: int, constrast: float, saturation: float, dither: Image.Dither, colors: int, palette: Image = None):
+class ImagePalette:
+    def __init__(self, name: str, image: Image.Image):
+        self.name = name
+        self.image = image
+
+def process_picture_internal(image: Image, output_path: Path, og_width: int, og_height: int, constrast: float, saturation: float, dither: Image.Dither, colors: int, palette: ImagePalette = None):
     if constrast != 1.0:
         output_path = output_path.with_name(f"{output_path.stem}_C{constrast}{output_path.suffix}")
         contrast_enhancer = ImageEnhance.Contrast(image)
@@ -15,8 +21,9 @@ def process_picture_internal(image: Image, output_path: Path, og_width: int, og_
         image = saturation_enhancer.enhance(saturation)
     output_path = output_path.with_name(f"{output_path.stem}_D{dither.name}{output_path.suffix}")
     if palette:
-        image = image.quantize(palette=palette, dither=dither)
-        colors = len(palette.getcolors()) if not colors else colors
+        output_path = output_path.with_name(f"{output_path.stem}_P{palette.name}{output_path.suffix}")
+        image = image.quantize(palette=palette.image, dither=dither)
+        colors = len(palette.image.getcolors()) if not colors else colors
     else:
         image = image.quantize(dither=dither)
     if colors and colors > 0:
@@ -25,7 +32,7 @@ def process_picture_internal(image: Image, output_path: Path, og_width: int, og_
     image = image.resize((og_width, og_height), Image.NEAREST)
     image.save(output_path)
 
-def process_picture(input_path: Path, output_path: Path, downscale_width_resolution: float, dither: bool, colors: int, saturation: float, constrast: float, palette: Image = None):
+def process_picture(input_path: Path, output_path: Path, downscale_width_resolution: float, dither: bool, colors: int, saturation: float, constrast: float, palettes: List[ImagePalette] = None):
     # Get the input image
     image = Image.open(input_path).convert('RGB')
     og_width, og_height = image.size
@@ -37,10 +44,9 @@ def process_picture(input_path: Path, output_path: Path, downscale_width_resolut
     saturations = saturation if saturation else [1.0]
     dithers = [Image.Dither.FLOYDSTEINBERG, Image.Dither.NONE] if dither == 2 else [Image.Dither.NONE] if dither == 0 else [Image.Dither.FLOYDSTEINBERG]
     colors = colors if colors else [0]
-    print (colors)
     # Generate all permutations (Cartesian product) of the lists
-    all_permutations = itertools.product(contrasts, saturations, dithers, colors)
-    for constrast, saturation, dither, colors in all_permutations:
+    all_permutations = itertools.product(contrasts, saturations, dithers, colors, palettes)
+    for constrast, saturation, dither, colors, palette in all_permutations:
         process_picture_internal(image.copy(), output_path, og_width, og_height, constrast, saturation, dither, colors, palette)
 
 # Initialize the parser
@@ -64,10 +70,13 @@ if len(sys.argv) < 2:
 # Parse the arguments
 args = parser.parse_args()
 
+palettes_images = []
 if args.palette:
-    palette_image = Image.open(args.palette).convert(mode="P", palette=Image.Palette.WEB)
-else:
-    palette_image = None
+    if Path(args.palette).is_dir():
+        for plt in Path(args.palette).rglob("*.png"):
+            palettes_images.append(ImagePalette(plt.stem, Image.open(plt).convert(mode="P", palette=Image.Palette.WEB)))
+    else:
+        palettes_images.append(ImagePalette(Path(args.palette).stem, Image.open(args.palette).convert(mode="P", palette=Image.Palette.WEB)))
 input_path = Path(args.input)
 output_path = Path(args.output)
 if input_path.is_dir():
@@ -75,6 +84,8 @@ if input_path.is_dir():
         print("If input is a directory, output must also be a directory")
         sys.exit(1)
     for ipt in Path(args.input).rglob("*.png"):
-        process_picture(ipt, output_path / ipt.name, args.downscale_width_resolution, args.dither, args.colors, args.saturation, args.constrast, palette_image)
+        process_picture(ipt, output_path / ipt.name, args.downscale_width_resolution, args.dither, args.colors, args.saturation, args.constrast, palettes_images)
 else:
-    process_picture(input_path, output_path, args.downscale_width_resolution, args.dither, args.colors, args.saturation, args.constrast, palette_image)
+    if output_path.is_dir():
+        output_path = output_path / input_path.name
+    process_picture(input_path, output_path, args.downscale_width_resolution, args.dither, args.colors, args.saturation, args.constrast, palettes_images)
