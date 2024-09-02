@@ -72,7 +72,7 @@ args = parser.parse_args()
 
 palettes_images = []
 if args.palette:
-    if Path(args.palette).is_dir():
+    if Path(args.palette[0]).is_dir():
         for plt in Path(args.palette).rglob("*.png"):
             palettes_images.append(ImagePalette(plt.stem, Image.open(plt).convert(mode="P", palette=Image.Palette.WEB)))
     else:
