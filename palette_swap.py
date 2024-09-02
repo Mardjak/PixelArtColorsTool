@@ -73,10 +73,11 @@ args = parser.parse_args()
 palettes_images = []
 if args.palette:
     if Path(args.palette[0]).is_dir():
-        for plt in Path(args.palette).rglob("*.png"):
+        for plt in Path(args.palette[0]).rglob("*.png"):
             palettes_images.append(ImagePalette(plt.stem, Image.open(plt).convert(mode="P", palette=Image.Palette.WEB)))
     else:
-        palettes_images.append(ImagePalette(Path(args.palette).stem, Image.open(args.palette).convert(mode="P", palette=Image.Palette.WEB)))
+        for plt in args.palette:
+            palettes_images.append(ImagePalette(Path(plt).stem, Image.open(plt).convert(mode="P", palette=Image.Palette.WEB)))
 input_path = Path(args.input)
 output_path = Path(args.output)
 if input_path.is_dir():
