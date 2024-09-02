@@ -85,8 +85,8 @@ if input_path.is_dir():
         print("If input is a directory, output must also be a directory")
         sys.exit(1)
     for ipt in Path(args.input).rglob("*.png"):
-        process_picture(ipt, output_path / ipt.name, args.downscale_width_resolution, args.dither, args.colors, args.saturation, args.constrast, palettes_images)
+        process_picture(ipt, output_path / ipt.name, args.twr, args.dither, args.colors, args.saturation, args.constrast, palettes_images)
 else:
     if output_path.is_dir():
         output_path = output_path / input_path.name
-    process_picture(input_path, output_path, args.downscale_width_resolution, args.dither, args.colors, args.saturation, args.constrast, palettes_images)
+    process_picture(input_path, output_path, args.twr, args.dither, args.colors, args.saturation, args.constrast, palettes_images)
